@@ -91,7 +91,7 @@ export function StudyView({
   }
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col items-center justify-between h-full max-h-full overflow-hidden">
+    <div className="max-w-2xl mx-auto flex flex-col items-center h-full pb-40">
       <div className="w-full flex justify-between items-center mb-6 px-4">
         <span className="text-sm font-medium text-text-muted">
           Card {currentIndex + 1} of {activeQueue.length}
@@ -103,7 +103,7 @@ export function StudyView({
 
       {/* The Flashcard */}
       <div
-        className="relative w-full h-[58vh] md:aspect-[16/10] cursor-pointer perspective-1000 mb-4"
+        className="relative w-full h-[52vh] md:aspect-[16/10] cursor-pointer perspective-1000 mb-4"
         onClick={() => !isFlipped && setIsFlipped(true)}
       >
         <motion.div
@@ -171,14 +171,14 @@ export function StudyView({
       </div>
 
       {/* Action Buttons */}
-      <div className="h-16 w-full flex items-center justify-center">
+      <div className="fixed bottom-24 left-0 right-0 px-4 z-40">
         <AnimatePresence mode="wait">
           {isFlipped && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="flex gap-4 w-full md:max-w-md"
+              className="flex gap-3 w-full max-w-2xl mx-auto"
             >
               <button
                 onClick={(e) => {
