@@ -103,7 +103,7 @@ export function StudyView({
 
       {/* The Flashcard */}
       <div
-        className="relative w-full h-[58vh] md:aspect-[16/10] cursor-pointer perspective-1000 mb-8"
+        className="relative w-full h-[58vh] md:aspect-[16/10] cursor-pointer perspective-1000 mb-4"
         onClick={() => !isFlipped && setIsFlipped(true)}
       >
         <motion.div
@@ -185,7 +185,7 @@ export function StudyView({
                   e.stopPropagation();
                   handleNext(false);
                 }}
-                className="flex-1 glass hover:bg-white/5 text-white py-4 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2"
+                className="flex-1 glass hover:bg-white/5 text-white py-3.5 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4 text-text-muted" />
                 Still Learning
@@ -195,7 +195,7 @@ export function StudyView({
                   e.stopPropagation();
                   handleNext(true);
                 }}
-                className="flex-1 bg-accent hover:bg-accent-active text-[#050505] py-4 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-white/10"
+                className="flex-1 bg-accent hover:bg-accent-active text-[#050505] py-3.5 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-white/10"
               >
                 <CheckCircle2 className="w-4 h-4 text-[#050505]" />
                 Mastered
