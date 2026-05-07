@@ -101,7 +101,7 @@ export default function App() {
 
       {/* Sidebar / Bottom Navigation */}
       {/* <nav className="fixed bottom-0 left-0 right-0 md:static w-full md:w-64 glass border-t border-t-white/5 md:border-t-0 md:border-r border-r-white/5 p-4 md:p-6 flex flex-row md:flex-col shrink-0 order-last md:order-first z-10 pb-safe md:pb-6"> */}
-      <nav className="fixed bottom-0 left-0 right-0 md:static w-full md:w-64 glass border-t border-t-white/5 md:border-t-0 md:border-r border-r-white/5 p-4 md:p-6 flex flex-row md:flex-col shrink-0 order-last md:order-first z-50 pb-safe md:pb-6">
+      <nav className="fixed bottom-0 left-0 right-0 md:static w-full md:w-64 glass-nav md:glass border-t border-t-white/5 md:border-t-0 md:border-r border-r-white/5 p-4 md:p-6 flex flex-row md:flex-col shrink-0 order-last md:order-first z-50 pb-safe md:pb-6">
         <div className="hidden md:flex items-center gap-3 mb-10">
           <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
             <Layers className="w-5 h-5 text-[#050505]" />
@@ -165,7 +165,13 @@ export default function App() {
       </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto pb-24 md:pb-12">
+      <main
+        className={`flex-1 p-6 md:p-12 pb-28 md:pb-12 ${
+          activeTab === "study-corner" || activeTab === "study-edge"
+            ? "overflow-hidden"
+            : "overflow-y-auto"
+        }`}
+      >
         {activeTab === "import" && (
           <ImportView
             onImport={handleImport}

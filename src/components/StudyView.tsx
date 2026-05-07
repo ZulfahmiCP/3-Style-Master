@@ -47,7 +47,7 @@ export function StudyView({
 
   if (pairs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-between min-h-[60vh] text-center max-w-md mx-auto space-y-6 animate-in zoom-in-95 duration-500">
+      <div className="flex flex-col items-center justify-center py-16 md:min-h-[60vh] text-center max-w-md mx-auto space-y-5 animate-in zoom-in-95 duration-500">
         <div className="w-16 h-16 bg-accent/10 text-accent rounded-2xl flex items-center justify-center">
           <Play className="w-8 h-8" />
         </div>
@@ -91,7 +91,7 @@ export function StudyView({
   }
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col items-center min-h-[60vh] justify-center">
+    <div className="max-w-2xl mx-auto flex flex-col items-center justify-between h-full max-h-full overflow-hidden">
       <div className="w-full flex justify-between items-center mb-6 px-4">
         <span className="text-sm font-medium text-text-muted">
           Card {currentIndex + 1} of {activeQueue.length}
@@ -103,7 +103,7 @@ export function StudyView({
 
       {/* The Flashcard */}
       <div
-        className="relative w-full aspect-[3/4] md:aspect-[16/10] cursor-pointer perspective-1000 mb-8"
+        className="relative w-full h-[58vh] md:aspect-[16/10] cursor-pointer perspective-1000 mb-8"
         onClick={() => !isFlipped && setIsFlipped(true)}
       >
         <motion.div
