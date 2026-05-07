@@ -4,9 +4,17 @@ import { LetterPair } from '../types';
 
 interface ImportViewProps {
   onImport: (pairs: LetterPair[], url?: string) => void;
+  sheetUrl?: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-export function ImportView({ onImport }: ImportViewProps) {
+export function ImportView({
+  onImport,
+  sheetUrl,
+  onRefresh,
+  isRefreshing,
+}: ImportViewProps) {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +111,36 @@ export function ImportView({ onImport }: ImportViewProps) {
             'Import from Sheets'
           )}
         </button>
+        {sheetUrl && (
+          <div className="glass rounded-2xl p-5 space-y-4 mt-6">
+            <div>
+              <p className="text-xs text-text-muted uppercase tracking-widest mb-2 font-bold">
+                Connected Spreadsheet
+              </p>
+
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <span className="text-xs text-text-muted break-all">
+                  {sheetUrl.replace(/^https?:\/\//, "")}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl py-3 text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isRefreshing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                "Refresh Data"
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

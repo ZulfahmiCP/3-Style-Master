@@ -166,7 +166,14 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 p-6 md:p-12 overflow-y-auto pb-24 md:pb-12">
-        {activeTab === "import" && <ImportView onImport={handleImport} />}
+        {activeTab === "import" && (
+          <ImportView
+            onImport={handleImport}
+            sheetUrl={sheetUrl}
+            onRefresh={handleRefresh}
+            isRefreshing={isRefreshing}
+          />
+        )}
 
         {activeTab === "library" && (
           <LibraryView
