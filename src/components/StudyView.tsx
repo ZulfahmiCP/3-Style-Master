@@ -18,11 +18,30 @@ export function StudyView({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Initialize study queue with non-mastered items
+  // Initialize study queue dengan SRS dan Fisher-Yates Shuffle
   useEffect(() => {
-    const toStudy = pairs.filter((p) => p.status !== "mastered");
-    // Shuffle the queue for a random study session
-    const shuffled = [...toStudy].sort(() => Math.random() - 0.5);
+    const now = Date.now();
+    
+    // Filter kartu: masukkan jika belum dikuasai, ATAU jika sudah waktunya di-review
+    const toStudy = pairs.filter((p) => {
+      if (p.status !== "mastered") return true; // new atau learning pasti masuk
+      
+      // Jika statusnya mastered, cek apakah nextReviewDate sudah lewat
+      // (Jika p.nextReviewDate belum ada/undefined di data lama, kita masukkan juga agar bisa di-review)
+      if (p.nextReviewDate && now < p.nextReviewDate) {
+        return false; // Belum waktunya, sembunyikan!
+      }
+      
+      return true; // Waktunya review!
+    });
+
+    // Algoritma Fisher-Yates Shuffle yang jauh lebih baik dan merata
+    const shuffled = [...toStudy];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
     setActiveQueue(shuffled);
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -34,9 +53,20 @@ export function StudyView({
     if (!currentPair) return;
 
     if (markMastered) {
-      onUpdatePair(currentPair.id, { status: "mastered" });
+      // Set waktu review selanjutnya menjadi 1 hari (24 jam) dari sekarang
+      const oneDayInMs = 24 * 60 * 60 * 1000;
+      onUpdatePair(currentPair.id, { 
+        status: "mastered",
+        nextReviewDate: Date.now() + oneDayInMs
+      });
     } else {
-      onUpdatePair(currentPair.id, { status: "learning" });
+      // Jika masih "learning", hapus nextReviewDate agar muncul di sesi belajar berikutnya
+      onUpdatePair(currentPair.id, { 
+        status: "learning",
+        // Pakai null/undefined secara logika dengan mengosongkannya jika tipenya memperbolehkan,
+        // tapi kita bisa pakai angka 0 agar TypeScript tetap aman.
+        nextReviewDate: 0 
+      });
     }
 
     setIsFlipped(false);

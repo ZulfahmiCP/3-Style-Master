@@ -5,4 +5,5 @@ export interface LetterPair {
   word: string; // e.g., 'Apple'
   alg: string; // e.g., '[U, R DUR\']'
   status: 'new' | 'learning' | 'mastered';
+  nextReviewDate?: number; // Tambahan untuk sistem SRS (waktu dalam milidetik)
 }
