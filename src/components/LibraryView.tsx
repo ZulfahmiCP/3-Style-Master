@@ -7,6 +7,23 @@ interface LibraryViewProps {
   onUpdatePair: (id: string, updates: Partial<LetterPair>) => void;
 }
 
+const getSubtleColorClass = (type?: string) => {
+  if (!type) return "";
+  const styles = [
+    "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+    "bg-blue-500/10 border-blue-500/20 text-blue-400",
+    "bg-purple-500/10 border-purple-500/20 text-purple-400",
+    "bg-amber-500/10 border-amber-500/20 text-amber-400",
+    "bg-rose-500/10 border-rose-500/20 text-rose-400",
+    "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+  ];
+  let hash = 0;
+  for (let i = 0; i < type.length; i++) {
+    hash = type.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return styles[Math.abs(hash) % styles.length];
+};
+
 export function LibraryView({ pairs, onUpdatePair }: LibraryViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'corner' | 'edge'>('all');
@@ -135,6 +152,19 @@ export function LibraryView({ pairs, onUpdatePair }: LibraryViewProps) {
               <div className="flex justify-between items-start mb-3">
                 <div className="flex flex-col gap-1">
                   <span className="text-xl font-bold tracking-tight text-white">{pair.letters}</span>
+
+                  {pair.algType && (
+                    <div 
+                      style={pair.color ? {
+                        backgroundColor: `${pair.color}1a`,
+                        borderColor: `${pair.color}33`,
+                        color: pair.color
+                      } : {}}
+                      className={`px-2 py-0.5 rounded-md border text-[9px] font-medium inline-block w-fit ${!pair.color ? getSubtleColorClass(pair.algType) : ''}`}
+                    >
+                      {pair.algType}
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => onUpdatePair(pair.id, { status: pair.status === 'mastered' ? 'learning' : 'mastered' })}
