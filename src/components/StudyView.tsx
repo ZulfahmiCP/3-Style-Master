@@ -171,7 +171,7 @@ export function StudyView({
       </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-24 left-0 right-0 px-4 z-40">
+      <div className="fixed bottom-24 left-0 md:left-64 right-0 px-4 z-40">
         <AnimatePresence mode="wait">
           {isFlipped && (
             <motion.div

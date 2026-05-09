@@ -31,17 +31,45 @@ export default function App() {
   }, [pairs]);
 
   const handleImport = (newPairs: LetterPair[], url?: string) => {
-    // Merge by id, giving preference to new items
+    // Buat map dari data baru (dari spreadsheet) untuk pencarian cepat
     const newItemsMap = new Map(newPairs.map((p) => [p.id, p]));
-    const mergedPairs = normalizedPairs.map((p) =>
-      newItemsMap.has(p.id) ? { ...p, ...newItemsMap.get(p.id) } : p,
-    );
 
-    // Add definitely new items that weren't in the old array
+    // Lakukan penggabungan (merge) data yang sudah ada
+    const mergedPairs = normalizedPairs.map((existingPair) => {
+      if (newItemsMap.has(existingPair.id)) {
+        const incomingPair = newItemsMap.get(existingPair.id)!;
+        
+        // Cek apakah ada perubahan pada word atau alg dari spreadsheet
+        const isWordChanged = existingPair.word !== incomingPair.word;
+        const isAlgChanged = existingPair.alg !== incomingPair.alg;
+
+        // Jika ada perbedaan, kita update word dan alg-nya, TAPI biarkan status tetap utuh
+        if (isWordChanged || isAlgChanged) {
+          return {
+            ...existingPair,
+            word: incomingPair.word,
+            alg: incomingPair.alg,
+            // Kita secara eksplisit mempertahankan status progres lokalku!
+            status: existingPair.status 
+          };
+        }
+        
+        // Jika tidak ada perbedaan kata/algoritma, kembalikan data lokalku tanpa disentuh
+        return existingPair;
+      }
+      
+      // Jika pasangan kartu sudah dihapus di spreadsheet tapi masih ada di lokal,
+      // kita tetap menyimpannya di sini (tidak otomatis dihapus).
+      return existingPair;
+    });
+
+    // Cari dan tambahkan data yang benar-benar baru (yang belum pernah di-import)
     const existingIds = new Set(normalizedPairs.map((p) => p.id));
     const newlyAdded = newPairs.filter((p) => !existingIds.has(p.id));
 
+    // Simpan ke local storage
     setPairs([...mergedPairs, ...newlyAdded]);
+    
     if (url) {
       setSheetUrl(url);
     }
