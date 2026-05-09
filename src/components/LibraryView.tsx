@@ -40,6 +40,9 @@ export function LibraryView({ pairs, onUpdatePair }: LibraryViewProps) {
     learning: pairs.filter(p => p.status === 'learning').length,
   };
 
+  // Hitung persentase untuk Library
+  const progressPercent = stats.total > 0 ? Math.round((stats.mastered / stats.total) * 100) : 0;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -49,16 +52,29 @@ export function LibraryView({ pairs, onUpdatePair }: LibraryViewProps) {
         </div>
         
         <div className="flex w-full md:w-auto">
-           {/* Stats simple summary */}
-           <div className="flex items-center justify-between md:justify-start w-full md:w-auto px-4 py-2 glass rounded-xl gap-6">
-             <div className="flex flex-col flex-1">
-               <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Total</span>
-               <span className="text-sm font-semibold text-text-primary">{stats.total}</span>
+           {/* Stats with Progress Bar */}
+           <div className="flex flex-col w-full md:w-auto px-5 py-3.5 glass rounded-xl md:min-w-[240px]">
+             <div className="flex items-center justify-between gap-6 mb-3">
+               <div className="flex flex-col flex-1">
+                 <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Total</span>
+                 <span className="text-sm font-semibold text-text-primary">{stats.total}</span>
+               </div>
+               <div className="h-6 w-px bg-white/10 shrink-0"></div>
+               <div className="flex flex-col flex-1 text-right">
+                 <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Mastered</span>
+                 <span className="text-sm font-semibold text-white">{stats.mastered}</span>
+               </div>
              </div>
-             <div className="h-6 w-px bg-white/10 shrink-0"></div>
-             <div className="flex flex-col flex-1 text-right md:text-left">
-               <span className="text-xs text-text-muted font-medium uppercase tracking-wider">Mastered</span>
-               <span className="text-sm font-semibold text-white">{stats.mastered}</span>
+             
+             {/* Progress Bar Visual */}
+             <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden flex items-center">
+                <div 
+                  className="h-full bg-accent transition-all duration-700 ease-out" 
+                  style={{ width: `${progressPercent}%` }}
+                />
+             </div>
+             <div className="text-[10px] text-text-muted mt-1.5 text-right font-medium">
+                {progressPercent}% Completed
              </div>
            </div>
         </div>

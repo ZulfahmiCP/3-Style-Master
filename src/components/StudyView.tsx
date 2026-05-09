@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, RotateCcw, CornerDownRight, Play } from "lucide-react";
 import { LetterPair } from "../types";
@@ -36,11 +36,21 @@ export function StudyView({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Initialize study queue with non-mastered items
+  // 1. SRS & Fisher-Yates Shuffle
   useEffect(() => {
-    const toStudy = pairs.filter((p) => p.status !== "mastered");
-    // Shuffle the queue for a random study session
-    const shuffled = [...toStudy].sort(() => Math.random() - 0.5);
+    const now = Date.now();
+    const toStudy = pairs.filter((p) => {
+      if (p.status !== "mastered") return true;
+      if (p.nextReviewDate && now < p.nextReviewDate) return false;
+      return true;
+    });
+
+    const shuffled = [...toStudy];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
     setActiveQueue(shuffled);
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -48,20 +58,54 @@ export function StudyView({
 
   const currentPair = activeQueue[currentIndex];
 
-  const handleNext = (markMastered: boolean) => {
+  // 2. useCallback pada handleNext & Logika SRS
+  const handleNext = useCallback((markMastered: boolean) => {
     if (!currentPair) return;
 
     if (markMastered) {
-      onUpdatePair(currentPair.id, { status: "mastered" });
+      const oneDayInMs = 24 * 60 * 60 * 1000;
+      onUpdatePair(currentPair.id, { 
+        status: "mastered",
+        nextReviewDate: Date.now() + oneDayInMs
+      });
     } else {
-      onUpdatePair(currentPair.id, { status: "learning" });
+      onUpdatePair(currentPair.id, { 
+        status: "learning",
+        nextReviewDate: 0 
+      });
     }
 
     setIsFlipped(false);
     setTimeout(() => {
       setCurrentIndex((prev) => prev + 1);
-    }, 150); // slight delay for flip animation to start before content changes
-  };
+    }, 150);
+  }, [currentPair, onUpdatePair]);
+
+  // 3. Logika Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!currentPair || currentIndex >= activeQueue.length) return;
+
+      switch (e.key) {
+        case " ":
+        case "Enter":
+          e.preventDefault();
+          if (!isFlipped) setIsFlipped(true);
+          break;
+        case "1":
+        case "ArrowLeft":
+          if (isFlipped) handleNext(false);
+          break;
+        case "2":
+        case "ArrowRight":
+          if (isFlipped) handleNext(true);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentPair, currentIndex, activeQueue.length, isFlipped, handleNext]);
 
   if (pairs.length === 0) {
     return (
