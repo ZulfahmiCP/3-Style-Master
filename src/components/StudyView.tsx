@@ -9,6 +9,24 @@ interface StudyViewProps {
   onNavigateToImport: () => void;
 }
 
+// Fungsi untuk menghasilkan warna elegan secara dinamis berdasarkan teks tipe
+const getSubtleColorClass = (type?: string) => {
+  if (!type) return "";
+  const styles = [
+    "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+    "bg-blue-500/10 border-blue-500/20 text-blue-400",
+    "bg-purple-500/10 border-purple-500/20 text-purple-400",
+    "bg-amber-500/10 border-amber-500/20 text-amber-400",
+    "bg-rose-500/10 border-rose-500/20 text-rose-400",
+    "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+  ];
+  let hash = 0;
+  for (let i = 0; i < type.length; i++) {
+    hash = type.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return styles[Math.abs(hash) % styles.length];
+};
+
 export function StudyView({
   pairs,
   onUpdatePair,
@@ -125,11 +143,21 @@ export function StudyView({
                 {currentPair.type || "corner"}
               </span>
             </div>
+
+            {/* LABEL TIPE ALGORITMA - FRONT */}
+            {currentPair.algType && (
+              <div
+                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${getSubtleColorClass(currentPair.algType)}`}
+              >
+                {currentPair.algType}
+              </div>
+            )}
+
             <h1 className="letter-pair-display text-white">
               {currentPair.letters}
             </h1>
             <p className="absolute bottom-6 md:bottom-8 px-6 md:px-8 py-2 bg-white/5 rounded-full border border-white/10 text-xs text-text-muted flex items-center gap-2">
-              Tap to reveal <CornerDownRight className="w-4 h-4" />
+              Tap or Space to reveal <CornerDownRight className="w-4 h-4" />
             </p>
           </div>
 
@@ -143,6 +171,16 @@ export function StudyView({
                 {currentPair.type || "corner"}
               </span>
             </div>
+
+            {/* LABEL TIPE ALGORITMA - FRONT */}
+            {currentPair.algType && (
+              <div
+                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${getSubtleColorClass(currentPair.algType)}`}
+              >
+                {currentPair.algType}
+              </div>
+            )}
+
             <div className="text-center space-y-4 md:space-y-6 max-w-lg w-full mt-4 md:mt-0">
               {(currentPair.type === "corner" || currentPair.word) && (
                 <>
