@@ -74,28 +74,80 @@ export async function fetchAndParseGoogleSheet(
 
   const pairs: LetterPair[] = [];
 
+  const extractColorMap = (data: string[][], startRow: number, endRow: number) => {
+    const colorMap = new Map<string, string>();
+    if (!data || data.length < startRow) return colorMap;
+
+    // Baris di spreadsheet (1-indexed) ke array (0-indexed)
+    for (let r = startRow - 1; r < Math.min(data.length, endRow); r++) {
+      const row = data[r];
+      if (!row) continue;
+      
+      // Kolom B, D, F, H adalah indeks 1, 3, 5, 7 (Tipe)
+      // Kolom C, E, G, I adalah indeks 2, 4, 6, 8 (Warna)
+      const pairs = [
+        { typeIdx: 1, colorIdx: 2 },
+        { typeIdx: 3, colorIdx: 4 },
+        { typeIdx: 5, colorIdx: 6 },
+        { typeIdx: 7, colorIdx: 8 },
+      ];
+
+      pairs.forEach(({ typeIdx, colorIdx }) => {
+        const typeName = row[typeIdx]?.trim();
+        let colorCode = row[colorIdx]?.trim();
+
+        if (typeName && colorCode) {
+          // Cek dan tambahkan '#' jika tidak ada
+          if (!colorCode.startsWith("#")) {
+            // Validasi sederhana apakah ini hex (3 atau 6 karakter)
+            if (/^[0-9A-Fa-f]{3,6}$/.test(colorCode)) {
+              colorCode = "#" + colorCode;
+            }
+          }
+          colorMap.set(typeName, colorCode);
+        }
+      });
+    }
+    return colorMap;
+  };
+
+  const cornerColorMap = extractColorMap(cornerTypesParsed, 23, 28);
+  const edgeColorMap = extractColorMap(edgeTypesParsed, 24, 29);
+
   const cornerKeys = new Set([...wordsMap.keys(), ...algsMap.keys()]);
   cornerKeys.forEach((key) => {
+    // 1. Ambil tipe algoritmanya dulu
+    const currentAlgType = cornerTypesMap.get(key) || "";
+    // 2. Jika tipenya ada, cari warnanya. Jika tidak ada, biarkan undefined
+    const currentColor = currentAlgType ? cornerColorMap.get(currentAlgType) : undefined;
+
     pairs.push({
       id: `corner_${key}`,
       type: "corner",
       letters: key,
       word: wordsMap.get(key) || "",
       alg: algsMap.get(key) || "",
-      algType: cornerTypesMap.get(key) || "", // Masukkan ke data
+      algType: currentAlgType,
+      color: currentColor, 
       status: "new",
     });
   });
 
   const edgeKeys = new Set([...edgeAlgsMap.keys()]);
   edgeKeys.forEach((key) => {
+    // 1. Ambil tipe algoritmanya dulu
+    const currentAlgType = edgeTypesMap.get(key) || "";
+    // 2. Jika tipenya ada, cari warnanya. Jika tidak ada, biarkan undefined
+    const currentColor = currentAlgType ? edgeColorMap.get(currentAlgType) : undefined;
+
     pairs.push({
       id: `edge_${key}`,
       type: "edge",
       letters: key,
       word: "",
       alg: edgeAlgsMap.get(key) || "",
-      algType: edgeTypesMap.get(key) || "", // Masukkan ke data
+      algType: currentAlgType,
+      color: currentColor,
       status: "new",
     });
   });

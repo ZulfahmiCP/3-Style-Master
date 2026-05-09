@@ -5,6 +5,7 @@ export interface LetterPair {
   word: string; // e.g., 'Apple'
   alg: string; // e.g., '[U, R DUR\']'
   algType?: string; // e.g., 'U-Swap'
+  color?: string; // e.g. for U-Swap is '#EA4435'
   status: "new" | "learning" | "mastered";
   nextReviewDate?: number; // Tambahan untuk sistem SRS (waktu dalam milidetik)
 }

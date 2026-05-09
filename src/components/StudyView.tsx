@@ -147,7 +147,18 @@ export function StudyView({
             {/* LABEL TIPE ALGORITMA - FRONT */}
             {currentPair.algType && (
               <div
-                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${getSubtleColorClass(currentPair.algType)}`}
+                style={
+                  currentPair.color
+                    ? {
+                        backgroundColor: `${currentPair.color}1a`, // 1a = 10% opacity
+                        borderColor: `${currentPair.color}33`,     // 33 = 20% opacity
+                        color: currentPair.color,
+                      }
+                    : {}
+                }
+                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${
+                  !currentPair.color ? getSubtleColorClass(currentPair.algType) : ""
+                }`}
               >
                 {currentPair.algType}
               </div>
@@ -172,10 +183,21 @@ export function StudyView({
               </span>
             </div>
 
-            {/* LABEL TIPE ALGORITMA - FRONT */}
+            {/* LABEL TIPE ALGORITMA - BACK */}
             {currentPair.algType && (
               <div
-                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${getSubtleColorClass(currentPair.algType)}`}
+                style={
+                  currentPair.color
+                    ? {
+                        backgroundColor: `${currentPair.color}1a`, // 1a = 10% opacity
+                        borderColor: `${currentPair.color}33`,     // 33 = 20% opacity
+                        color: currentPair.color,
+                      }
+                    : {}
+                }
+                className={`absolute top-4 right-4 md:top-6 md:right-6 px-3 py-1 rounded-full border text-[10px] md:text-xs font-medium tracking-wide ${
+                  !currentPair.color ? getSubtleColorClass(currentPair.algType) : ""
+                }`}
               >
                 {currentPair.algType}
               </div>
