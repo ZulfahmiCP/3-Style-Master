@@ -148,57 +148,65 @@ export function LibraryView({ pairs, onUpdatePair }: LibraryViewProps) {
           </div>
         ) : (
           filteredPairs.map((pair) => (
-            <div key={pair.id} className="glass rounded-xl p-5 hover:border-accent/50 transition-colors group">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xl font-bold tracking-tight text-white">{pair.letters}</span>
+            <div key={pair.id} className="glass rounded-2xl p-6 hover:border-accent/30 transition-all group flex flex-col items-center text-center relative overflow-hidden">
+              {/* Efek kilauan halus di pojok */}
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors" />
 
-                  {pair.algType && (
-                    <div 
-                      style={pair.color ? {
-                        backgroundColor: `${pair.color}1a`,
-                        borderColor: `${pair.color}33`,
-                        color: pair.color
-                      } : {}}
-                      className={`px-2 py-0.5 rounded-md border text-[9px] font-medium inline-block w-fit ${!pair.color ? getSubtleColorClass(pair.algType) : ''}`}
-                    >
-                      {pair.algType}
-                    </div>
-                  )}
-                </div>
+              <div className="w-full flex justify-between items-start mb-5">
+                {/* Info Tipe (Badge) */}
+                {pair.algType ? (
+                  <div 
+                    style={pair.color ? {
+                      backgroundColor: `${pair.color}1a`,
+                      borderColor: `${pair.color}33`,
+                      color: pair.color
+                    } : {}}
+                    className={`px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider ${!pair.color ? getSubtleColorClass(pair.algType) : ''}`}
+                  >
+                    {pair.algType}
+                  </div>
+                ) : <div />}
+                
                 <button
                   onClick={() => onUpdatePair(pair.id, { status: pair.status === 'mastered' ? 'learning' : 'mastered' })}
-                  title={pair.status === 'mastered' ? "Unpin / Reset" : "Mark as Mastered"}
-                  className={`p-1.5 rounded-lg transition-colors ${
+                  className={`p-2 rounded-xl transition-all ${
                     pair.status === 'mastered' 
-                      ? 'bg-accent/20 text-accent hover:bg-accent/40' 
-                      : 'bg-bg-base text-text-muted hover:text-white hover:bg-bg-surface-hover'
+                      ? 'bg-accent text-[#050505] shadow-lg shadow-accent/20' 
+                      : 'bg-white/5 text-text-muted hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Pin className="w-4 h-4" />
                 </button>
               </div>
-              
-              <div className="space-y-1.5 mb-4">
-                <p className="text-sm border-b border-bg-surface-hover/50 pb-1.5">
-                  <span className="text-text-muted text-xs uppercase tracking-wider block mb-0.5">Word</span>
-                  <span className="text-text-primary truncate block" title={pair.word}>{pair.word || <span className="opacity-30 italic">None</span>}</span>
-                </p>
-                <p className="text-sm">
-                  <span className="text-text-muted text-xs uppercase tracking-wider block mb-0.5">Alg</span>
-                  <span className="text-text-primary font-mono text-xs truncate block" title={pair.alg}>{pair.alg || <span className="opacity-30 italic">None</span>}</span>
-                </p>
+
+              {/* Konten Utama (Centered) */}
+              <div className="flex flex-col items-center gap-1 mb-6">
+                <span className="text-4xl font-black tracking-tighter text-white group-hover:scale-110 transition-transform duration-300">
+                  {pair.letters}
+                </span>
+                <span className="text-sm font-medium text-text-primary/80 italic">
+                  {pair.word || <span className="opacity-20">No word</span>}
+                </span>
               </div>
 
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-bg-surface-hover/30">
-                <div className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-text-muted" />
-                  <span className="text-xs text-text-muted capitalize">{pair.status}</span>
+              {/* Kontainer Algoritma yang lebih menonjol */}
+              <div className="w-full bg-white/5 border border-white/5 rounded-xl p-3 mb-6 group-hover:bg-white/10 transition-colors">
+                <span className="text-[10px] text-text-muted uppercase tracking-[0.2em] block mb-2 font-bold">Algorithm</span>
+                <code className="text-xs font-mono text-accent/90 break-words line-clamp-2 leading-relaxed">
+                  {pair.alg || "No algorithm"}
+                </code>
+              </div>
+
+              {/* Footer Kartu */}
+              <div className="w-full flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${pair.status === 'mastered' ? 'bg-accent' : 'bg-text-muted/30'}`} />
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{pair.status}</span>
                 </div>
                 {pair.status !== 'new' && (
                   <button 
                     onClick={() => onUpdatePair(pair.id, { status: 'new' })}
-                    className="text-xs text-text-muted hover:text-white flex items-center gap-1 transition-colors"
+                    className="text-[10px] text-text-muted hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-widest"
                   >
                     <RotateCcw className="w-3 h-3" />
                     Reset
