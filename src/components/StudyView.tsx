@@ -181,7 +181,7 @@ export function StudyView({
            
            {/* Dropdown Menu Filter (Kondisi Kosong) */}
            {isFilterOpen && (
-              <div className="absolute right-0 top-full mt-3 w-64 glass rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute right-0 top-full mt-3 w-64 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Target Letters</span>
                   {selectedLetters.length > 0 && (
@@ -266,7 +266,7 @@ export function StudyView({
 
           {/* Dropdown Menu Filter */}
           {isFilterOpen && (
-            <div className="absolute right-0 top-full mt-3 w-[260px] md:w-[300px] glass rounded-2xl p-4 md:p-5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-full mt-3 w-[260px] md:w-[300px] bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 md:p-5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">Target Letters</span>
                 {selectedLetters.length > 0 && (
