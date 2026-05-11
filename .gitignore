@@ -6,3 +6,4 @@ coverage/
 *.log
 .env*
 !.env.example
+link = https://gemini.google.com/app/2f0a255a75e97857

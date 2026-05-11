@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle2, RotateCcw, CornerDownRight, Play } from "lucide-react";
+import { CheckCircle2, RotateCcw, CornerDownRight, Play, Filter, X } from "lucide-react";
 import { LetterPair } from "../types";
 
 interface StudyViewProps {
@@ -35,13 +35,51 @@ export function StudyView({
   const [activeQueue, setActiveQueue] = useState<LetterPair[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  
+  // State untuk fitur Filter Huruf
+  const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // 1. SRS & Fisher-Yates Shuffle
+  // Dapatkan daftar huruf unik yang tersedia dari semua pairs
+  const availableLetters = useMemo(() => {
+    const letters = new Set<string>();
+    pairs.forEach(p => {
+       if (p.letters && p.letters.length >= 2) {
+          letters.add(p.letters[0].toUpperCase());
+          letters.add(p.letters[1].toUpperCase());
+       }
+    });
+    return Array.from(letters).sort();
+  }, [pairs]);
+
+  // Fungsi toggle huruf
+  const toggleLetter = (letter: string) => {
+    setSelectedLetters(prev => 
+      prev.includes(letter) 
+        ? prev.filter(l => l !== letter) 
+        : [...prev, letter]
+    );
+  };
+
+  // Initialize study queue dengan SRS, Filter Huruf, dan Fisher-Yates Shuffle
   useEffect(() => {
     const now = Date.now();
     const toStudy = pairs.filter((p) => {
-      if (p.status !== "mastered") return true;
-      if (p.nextReviewDate && now < p.nextReviewDate) return false;
+      // 1. Aturan SRS (Spaced Repetition)
+      if (p.status === "mastered" && p.nextReviewDate && now < p.nextReviewDate) {
+        return false;
+      }
+
+      // 2. Aturan Filter Huruf (Targeted Practice)
+      if (selectedLetters.length > 0) {
+        const l1 = p.letters[0]?.toUpperCase();
+        const l2 = p.letters[1]?.toUpperCase();
+        // Hanya masukkan jika huruf pertama ATAU kedua ada di daftar pilihan
+        if (!selectedLetters.includes(l1) && !selectedLetters.includes(l2)) {
+          return false;
+        }
+      }
+
       return true;
     });
 
@@ -54,11 +92,10 @@ export function StudyView({
     setActiveQueue(shuffled);
     setCurrentIndex(0);
     setIsFlipped(false);
-  }, [pairs]);
+  }, [pairs, selectedLetters]); // <-- Penting: Update saat selectedLetters berubah
 
   const currentPair = activeQueue[currentIndex];
 
-  // 2. useCallback pada handleNext & Logika SRS
   const handleNext = useCallback((markMastered: boolean) => {
     if (!currentPair) return;
 
@@ -81,7 +118,7 @@ export function StudyView({
     }, 150);
   }, [currentPair, onUpdatePair]);
 
-  // 3. Logika Keyboard Shortcuts
+  // Fungsi Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!currentPair || currentIndex >= activeQueue.length) return;
@@ -114,12 +151,9 @@ export function StudyView({
           <Play className="w-8 h-8" />
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">
-            No cards to study
-          </h2>
+          <h2 className="text-xl font-semibold text-text-primary">No cards to study</h2>
           <p className="text-text-muted mt-2 text-sm leading-relaxed">
-            Your library is empty. Import your 3 Style spreadsheet to start
-            learning.
+            Your library is empty. Import your 3 Style spreadsheet to start learning.
           </p>
         </div>
         <button
@@ -134,26 +168,138 @@ export function StudyView({
 
   if (!currentPair) {
     return (
-      <div className="flex flex-col items-center justify-between min-h-[60vh] text-center max-w-md mx-auto space-y-6 animate-in zoom-in-95 duration-500">
-        <div className="w-16 h-16 bg-white/10 text-white rounded-2xl flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-md mx-auto space-y-6 animate-in zoom-in-95 duration-500 relative">
+        {/* Tombol filter tetap muncul meskipun kosong agar bisa di-reset */}
+        <div className="absolute top-0 right-0">
+           <button 
+             onClick={() => setIsFilterOpen(!isFilterOpen)}
+             className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-accent bg-accent/10 hover:bg-accent/20 px-4 py-2 rounded-xl transition-colors border border-accent/20"
+           >
+             <Filter className="w-3.5 h-3.5" />
+             {selectedLetters.length === 0 ? "All Letters" : `${selectedLetters.length} Filtered`}
+           </button>
+           
+           {/* Dropdown Menu Filter (Kondisi Kosong) */}
+           {isFilterOpen && (
+              <div className="absolute right-0 top-full mt-3 w-64 glass rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Target Letters</span>
+                  {selectedLetters.length > 0 && (
+                    <button onClick={() => setSelectedLetters([])} className="text-[10px] text-accent hover:underline flex items-center gap-1">
+                      <X className="w-3 h-3" /> Clear
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {availableLetters.map(l => (
+                    <button
+                      key={l}
+                      onClick={() => toggleLetter(l)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${selectedLetters.includes(l) ? 'bg-accent text-[#050505] shadow-lg shadow-accent/20' : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white'}`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+        </div>
+
+        <div className="w-16 h-16 bg-white/10 text-white rounded-2xl flex items-center justify-center mt-12">
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">
-            All caught up!
-          </h2>
+          <h2 className="text-xl font-semibold text-text-primary">All caught up!</h2>
           <p className="text-text-muted mt-2 text-sm leading-relaxed">
-            You've studied all non-mastered letter pairs in your currently
-            imported data. Reset some pairs in the library or import more to
-            continue.
+            {selectedLetters.length > 0 
+              ? "You've studied all scheduled pairs for the selected letters. Try removing the filter!" 
+              : "You've studied all scheduled letter pairs. Come back tomorrow for the next review!"}
           </p>
         </div>
+        {selectedLetters.length > 0 && (
+          <button
+            onClick={() => setSelectedLetters([])}
+            className="mt-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-xl font-medium transition-colors text-sm"
+          >
+            Clear Filter
+          </button>
+        )}
       </div>
     );
   }
 
+  const progressPercentage = activeQueue.length > 0 ? (currentIndex / activeQueue.length) * 100 : 0;
+
   return (
     <div className="max-w-2xl mx-auto flex flex-col items-center h-full pb-40">
+      {/* HEADER: Progress Bar & Tombol Filter Pengganti Status */}
+      <div className="w-full flex items-center justify-between mb-6 px-4">
+        
+        {/* Kiri: Progress */}
+        <div className="flex items-center gap-4 flex-1 mr-4">
+          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-accent"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercentage}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          <span className="text-xs font-medium text-text-muted whitespace-nowrap">
+            {currentIndex} / {activeQueue.length}
+          </span>
+        </div>
+
+        {/* Kanan: Targeted Practice Filter (Menggantikan status 'NEW') */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className={`flex items-center gap-1.5 text-[10px] md:text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-colors border ${
+              selectedLetters.length > 0 
+                ? 'bg-accent/10 text-accent border-accent/20 hover:bg-accent/20' 
+                : 'bg-bg-surface text-text-muted border-transparent hover:text-white'
+            }`}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            {selectedLetters.length === 0 ? "All Letters" : `${selectedLetters.length} Letters`}
+          </button>
+
+          {/* Dropdown Menu Filter */}
+          {isFilterOpen && (
+            <div className="absolute right-0 top-full mt-3 w-[260px] md:w-[300px] glass rounded-2xl p-4 md:p-5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xs font-bold text-white uppercase tracking-wider">Target Letters</span>
+                {selectedLetters.length > 0 && (
+                  <button onClick={() => setSelectedLetters([])} className="text-[10px] font-medium text-accent hover:underline flex items-center gap-1 bg-accent/10 px-2 py-1 rounded-md">
+                    <X className="w-3 h-3" /> Clear
+                  </button>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-6 gap-2">
+                {availableLetters.map(l => (
+                  <button
+                    key={l}
+                    onClick={() => toggleLetter(l)}
+                    className={`aspect-square rounded-xl text-xs md:text-sm font-black transition-all flex items-center justify-center ${
+                      selectedLetters.includes(l) 
+                        ? 'bg-accent text-[#050505] shadow-lg shadow-accent/20 scale-105' 
+                        : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-text-muted mt-4 text-center leading-relaxed opacity-70">
+                Shows cards containing any of the selected letters as their first or second piece.
+              </p>
+            </div>
+          )}
+        </div>
+
+      </div>
+
       <div className="w-full flex justify-between items-center mb-6 px-4">
         <span className="text-sm font-medium text-text-muted">
           Card {currentIndex + 1} of {activeQueue.length}
